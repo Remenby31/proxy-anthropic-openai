@@ -1,104 +1,104 @@
 # Proxy Anthropic-OpenAI
 
-Ce projet implémente un proxy pour interagir avec l'API d'Anthropic et offrir une interface compatible avec OpenAI.  
-Il permet d'intercepter les requêtes, de les vérifier et de les transformer pour les adapter aux formats attendus.
+This project implements a proxy to interact with Anthropic's API while providing an OpenAI-compatible interface.
+It intercepts requests, validates them, and transforms them to match the expected formats.
 
-## Fonctionnalités
+## Features
 
-- Proxy pour l'endpoint `/v1/chat/completions` avec support du mode streaming et non-streaming.
-- Conversion des réponses d'Anthropic au format OpenAI.
-- Endpoint `/v1/models` pour lister les modèles disponibles (limité aux 20 premiers).
-- Vérification des headers et de la charge utile.
+- Proxy for the `/v1/chat/completions` endpoint with support for streaming and non-streaming modes.
+- Conversion of Anthropic responses to OpenAI format.
+- `/v1/models` endpoint to list available models (limited to top 20).
+- Headers and payload validation.
 
-## Déploiement
+## Deployment
 
-### Option 1 : Utilisation de l'image Docker publique
+### Option 1: Using the public Docker image
 
-L'image Docker est disponible sur Docker Hub. Pour l'utiliser :
+The Docker image is available on Docker Hub. To use it:
 
 ```bash
 docker run -d \
   --name proxy-anthropic \
   -p 5000:5000 \
-  -e ANTHROPIC_API_KEY=votre_clé_api \
+  -e ANTHROPIC_API_KEY=your_api_key \
   remenby/proxy-anthropic:latest
 ```
 
-### Option 2 : Construction de l'image locale
+### Option 2: Building the local image
 
-Si vous souhaitez construire l'image vous-même :
+If you want to build the image yourself:
 
 ```bash
-# Cloner le dépôt
-git clone https://votre-repo-url.git
+# Clone the repository
+git clone https://your-repo-url.git
 cd proxy-anthropic-openai
 
-# Construire l'image
+# Build the image
 docker build -t proxy-anthropic .
 
-# Lancer le conteneur
+# Run the container
 docker run -d \
   --name proxy-anthropic \
   -p 5000:5000 \
-  -e ANTHROPIC_API_KEY=votre_clé_api \
+  -e ANTHROPIC_API_KEY=your_api_key \
   proxy-anthropic
 ```
 
-### Gestion du conteneur
+### Container Management
 
 ```bash
-# Vérifier les logs
+# Check logs
 docker logs -f proxy-anthropic
 
-# Arrêter le conteneur
+# Stop container
 docker stop proxy-anthropic
 
-# Supprimer le conteneur
+# Remove container
 docker rm proxy-anthropic
 ```
 
-## Utilisation
+## Usage
 
-Le proxy sera accessible sur `http://0.0.0.0:5000`.
+The proxy will be accessible at `http://0.0.0.0:5000`.
 
-### Exemple d'appel
+### Example Calls
 
-#### Mode non-streaming
+#### Non-streaming mode
 
 ```bash
 curl -X POST http://0.0.0.0:5000/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer VOTRE_API_KEY" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{
-    "model": "votre-modele",
-    "messages": [{"role": "user", "content": "Bonjour"}]
+    "model": "your-model",
+    "messages": [{"role": "user", "content": "Hello"}]
   }'
 ```
 
-#### Mode streaming
+#### Streaming mode
 
 ```bash
 curl -N -X POST http://0.0.0.0:5000/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer VOTRE_API_KEY" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{
-    "model": "votre-modele",
-    "messages": [{"role": "user", "content": "Bonjour"}],
+    "model": "your-model",
+    "messages": [{"role": "user", "content": "Hello"}],
     "stream": true
   }'
 ```
 
-#### Exemple avec la librairie OpenAI en Python
+#### Example using OpenAI Python library
 
 ```python
 import openai
 
 openai.api_base = "http://0.0.0.0:5000"
-openai.api_key = "VOTRE_API_KEY"
+openai.api_key = "YOUR_API_KEY"
 
 response = openai.ChatCompletion.create(
-    model="votre-modele",
-    messages=[{"role": "user", "content": "Bonjour"}]
+    model="your-model",
+    messages=[{"role": "user", "content": "Hello"}]
 )
 
 print(response)
@@ -106,10 +106,10 @@ print(response)
 
 ## Architecture
 
-- **claude_proxy.py** : Le point d'entrée de l'application et le routage des endpoints.
-- **utils_proxy.py** : Fonctions utilitaires pour vérifier et transformer les requêtes/réponses.
-- **readme.md** (ce fichier) : Documentation complète du projet.
+- **claude_proxy.py**: Application entry point and endpoint routing.
+- **utils_proxy.py**: Utility functions for request/response validation and transformation.
+- **readme.md** (this file): Complete project documentation.
 
-## Licence
+## License
 
-Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
