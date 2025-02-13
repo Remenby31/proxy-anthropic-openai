@@ -1,5 +1,7 @@
 # Proxy Anthropic-OpenAI
 
+<img src="docs/logo_makehub.png" width="200" alt="Logo MakeHub"/>
+
 This project implements a proxy to interact with Anthropic's API while providing an OpenAI-compatible interface.
 It intercepts requests, validates them, and transforms them to match the expected formats.
 
@@ -17,11 +19,7 @@ It intercepts requests, validates them, and transforms them to match the expecte
 The Docker image is available on Docker Hub. To use it:
 
 ```bash
-docker run -d \
-  --name proxy-anthropic \
-  -p 5000:5000 \
-  -e ANTHROPIC_API_KEY=your_api_key \
-  remenby/proxy-anthropic:latest
+docker run -d --name proxy-anthropic -p 5000:5000 -e ANTHROPIC_API_KEY=your_api_key remenby/proxy-anthropic:latest
 ```
 
 ### Option 2: Building the local image
@@ -34,14 +32,10 @@ git clone https://your-repo-url.git
 cd proxy-anthropic-openai
 
 # Build the image
-docker build -t proxy-anthropic .
+docker build -t proxy-anthropic . 
 
 # Run the container
-docker run -d \
-  --name proxy-anthropic \
-  -p 5000:5000 \
-  -e ANTHROPIC_API_KEY=your_api_key \
-  proxy-anthropic
+docker run -d --name proxy-anthropic -p 5000:5000 -e ANTHROPIC_API_KEY=your_api_key proxy-anthropic
 ```
 
 ### Container Management
@@ -61,47 +55,51 @@ docker rm proxy-anthropic
 
 The proxy will be accessible at `http://0.0.0.0:5000`.
 
-### Example Calls
+### Example Calls using OpenAI Python library
+
+```python
+from openai import Client
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+api_key = os.environ.get("CLAUDE_API_KEY")
+base_url = "http://0.0.0.0:5000/v1"
+client = Client(api_key=api_key, base_url=base_url)
+model = "claude-3-5-haiku-latest"
+```
 
 #### Non-streaming mode
 
-```bash
-curl -X POST http://0.0.0.0:5000/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -d '{
-    "model": "your-model",
-    "messages": [{"role": "user", "content": "Hello"}]
-  }'
+```python
+response = client.chat.completions.create(
+    model=model,
+    messages=[{"role": "user", "content": "Hello !"}]
+)
+print(response.choices[0].message.content)
 ```
 
 #### Streaming mode
 
-```bash
-curl -N -X POST http://0.0.0.0:5000/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -d '{
-    "model": "your-model",
-    "messages": [{"role": "user", "content": "Hello"}],
-    "stream": true
-  }'
-```
-
-#### Example using OpenAI Python library
-
 ```python
-import openai
-
-openai.api_base = "http://0.0.0.0:5000"
-openai.api_key = "YOUR_API_KEY"
-
-response = openai.ChatCompletion.create(
-    model="your-model",
-    messages=[{"role": "user", "content": "Hello"}]
+response = client.chat.completions.create(
+    model=model,
+    messages=[{"role": "user", "content": "Hello !"}],
+    stream=True,
+    max_tokens=250
 )
 
-print(response)
+for chunk in response:
+    if chunk.choices[0].delta.content is not None:
+        print(chunk.choices[0].delta.content, end='', flush=True)
+```
+
+#### List available models
+
+```python
+models = client.models.list()
+print(models)
 ```
 
 ## Architecture
