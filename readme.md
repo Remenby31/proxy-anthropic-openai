@@ -1,6 +1,10 @@
 # Proxy Anthropic-OpenAI
 
-<img src="docs/logo_makehub.png" width="200" alt="Logo MakeHub"/>
+<p align="center">
+  <img src="docs/logo_makehub.png" width="300" alt="Logo MakeHub"/>
+</p>
+
+<br/>
 
 This project implements a proxy to interact with Anthropic's API while providing an OpenAI-compatible interface.
 It intercepts requests, validates them, and transforms them to match the expected formats.
@@ -38,22 +42,10 @@ docker build -t proxy-anthropic .
 docker run -d --name proxy-anthropic -p 5000:5000 -e ANTHROPIC_API_KEY=your_api_key proxy-anthropic
 ```
 
-### Container Management
-
-```bash
-# Check logs
-docker logs -f proxy-anthropic
-
-# Stop container
-docker stop proxy-anthropic
-
-# Remove container
-docker rm proxy-anthropic
-```
 
 ## Usage
 
-The proxy will be accessible at `http://0.0.0.0:5000`.
+The proxy will be accessible at `http://[container_IP]:5000`.
 
 ### Example Calls using OpenAI Python library
 
@@ -65,7 +57,7 @@ import os
 load_dotenv()
 
 api_key = os.environ.get("CLAUDE_API_KEY")
-base_url = "http://0.0.0.0:5000/v1"
+base_url = "http://[container_IP]:5000/v1"
 client = Client(api_key=api_key, base_url=base_url)
 model = "claude-3-5-haiku-latest"
 ```
