@@ -10,45 +10,54 @@ Il permet d'intercepter les requêtes, de les vérifier et de les transformer po
 - Endpoint `/v1/models` pour lister les modèles disponibles (limité aux 20 premiers).
 - Vérification des headers et de la charge utile.
 
-## Prérequis
+## Déploiement
 
-- Python 3.x
-- Flask
-- Bibliothèque `anthropic`
-- Autres dépendances listées dans `requirements.txt` (à créer le cas échéant)
+### Option 1 : Utilisation de l'image Docker publique
 
-## Installation
+L'image Docker est disponible sur Docker Hub. Pour l'utiliser :
+
+```bash
+docker run -d \
+  --name proxy-anthropic \
+  -p 5000:5000 \
+  -e ANTHROPIC_API_KEY=votre_clé_api \
+  remenby/proxy-anthropic:latest
+```
+
+### Option 2 : Construction de l'image locale
+
+Si vous souhaitez construire l'image vous-même :
 
 ```bash
 # Cloner le dépôt
 git clone https://votre-repo-url.git
-
-# Se placer dans le répertoire du projet
 cd proxy-anthropic-openai
 
-# Installer les dépendances
-pip install -r requirements.txt
+# Construire l'image
+docker build -t proxy-anthropic .
+
+# Lancer le conteneur
+docker run -d \
+  --name proxy-anthropic \
+  -p 5000:5000 \
+  -e ANTHROPIC_API_KEY=votre_clé_api \
+  proxy-anthropic
+```
+
+### Gestion du conteneur
+
+```bash
+# Vérifier les logs
+docker logs -f proxy-anthropic
+
+# Arrêter le conteneur
+docker stop proxy-anthropic
+
+# Supprimer le conteneur
+docker rm proxy-anthropic
 ```
 
 ## Utilisation
-
-### Mode développement
-
-```bash
-python claude_proxy.py
-```
-
-### Mode production
-
-```bash
-gunicorn --bind 0.0.0.0:5000 claude_proxy:app
-```
-
-Pour lancer le proxy en mode développement :
-
-```bash
-python claude_proxy.py
-```
 
 Le proxy sera accessible sur `http://0.0.0.0:5000`.
 
@@ -81,12 +90,6 @@ curl -N -X POST http://0.0.0.0:5000/v1/chat/completions \
 
 #### Exemple avec la librairie OpenAI en Python
 
-Installez la librairie avec :
-```bash
-pip install openai
-```
-
-Utilisez le code suivant pour effectuer la requête :
 ```python
 import openai
 
@@ -101,32 +104,6 @@ response = openai.ChatCompletion.create(
 print(response)
 ```
 
-## Déploiement avec Docker
-
-### Construction de l'image
-
-```bash
-docker build -t proxy-anthropic .
-```
-
-### Lancement du conteneur
-
-```bash
-docker run -d --name proxy-anthropic -p 5000:5000 proxy-anthropic
-```
-
-### Vérification des logs
-
-```bash
-docker logs -f proxy-anthropic
-```
-
-### Arrêt du conteneur
-
-```bash
-docker stop proxy-anthropic
-```
-
 ## Architecture
 
 - **claude_proxy.py** : Le point d'entrée de l'application et le routage des endpoints.
@@ -136,5 +113,3 @@ docker stop proxy-anthropic
 ## Licence
 
 Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
-
-# ...autres informations éventuelles...
